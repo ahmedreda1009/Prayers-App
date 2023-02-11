@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prayers Time</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;800;1000&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="info">
+            <input type="search" placeholder=" Another Location...">
+            <div class="location">
+                <span class="city"></span>
+                ,
+                <span class="country"></span>
+            </div>
+            <div class="date-time">
+                <time class="date"></time>
+                <time class="time"></time>
+            </div>
+            <div class="next-prayer-time">
+                <div class="time-till-next">
+                    <time>03:14:23</time>
+                    <div class="next-prayer">Untill <span>Asr</span></div>
+                </div>
+                 
+                
+            </div>
+        </div>
+        <div class="prayers">
+            <ul>
+                <li class="prayer">
+                    <div class="prayer-name">Fajr</div>
+                    <div class="prayer-time"></div>
+                </li>
+                <li class="prayer">
+                    <div class="prayer-name">Shorouk</div>
+                    <div class="prayer-time"></div>
+                </li>
+                <li class="prayer">
+                    <div class="prayer-name">Dhuhr</div>
+                    <div class="prayer-time"></div>
+                </li>
+                <li class="prayer active">
+                    <div class="prayer-name">Asr</div>
+                    <div class="prayer-time"></div>
+                </li>
+                <li class="prayer">
+                    <div class="prayer-name">Maghrib</div>
+                    <div class="prayer-time"></div>
+                </li>
+                <li class="prayer">
+                    <div class="prayer-name">Isha</div>
+                    <div class="prayer-time"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="node_modules/axios/dist/axios.min.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>
