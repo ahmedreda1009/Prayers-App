@@ -131,11 +131,12 @@ body::after {
 }
 
 .info .time-till-next {
-	background-color: rgba(255, 222, 131, 0.1);
+	background-color: rgba(255, 222, 131, 0.3);
 	/* color: #000; */
 	border-radius: 10px;
 	/* padding: 10px 0; */
 	margin-bottom: 0;
+	box-shadow: 2px 2px 6px 1px rgb(0 0 0 / 30%);
 }
 
 .info .time-till-next time {
@@ -209,5 +210,6 @@ body::after {
 
 .prayers .prayer.active {
 	background-color: rgba(255, 222, 131, 0.786);
+	box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.404);
 	transform: scale(1.05);
 }
