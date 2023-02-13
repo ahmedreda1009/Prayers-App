@@ -69,15 +69,11 @@ async function getCountryName(city) {
         const response = await fetch(countryNameApi);
         const data = await response.json();
 
-        // get country name from country code.
-        let regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-        let countryName = regionNames.of(data.sys.country);
-
         // set the city and country from the location inputed by the user.
         document.querySelector('.info .location .city').innerHTML = data.name;
         document.querySelector('.info .location .country').innerHTML = data.sys.country;
 
-        return Promise.resolve({ city: data.name, country: countryName });
+        return Promise.resolve({ city: data.name, country: data.sys.country });
 
     } catch (error) {
         console.log(error.message);
