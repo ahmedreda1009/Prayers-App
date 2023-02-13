@@ -86,7 +86,7 @@ body::after {
 }
 
 .info .location .city {
-	font-size: 30px;
+	font-size: 50px;
 	font-weight: 200;
 }
 
@@ -118,34 +118,35 @@ body::after {
 	text-align: center;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 500px) {
 	.info .next-prayer-time {
 		width: 100%;
 	}
 }
 
 .info .time-till-next {
-	font-size: 62px;
-	background-color: rgba(250, 235, 215, 0.156);
+	background-color: rgba(255, 222, 131, 0.1);
+	/* color: #000; */
 	border-radius: 10px;
 	/* padding: 10px 0; */
 	margin-bottom: 0;
 }
 
 .info .time-till-next time {
-	font-weight: 500;
+	font-weight: 900;
+	font-size: 82px;
 }
 
 .info .next-prayer {
-	font-size: 18px;
-	font-weight: 200;
-	margin-top: -20px;
+	font-size: 20px;
+	font-weight: 400;
+	margin-top: -40px;
 }
 
 .info .next-prayer span {
-	color: rgb(255, 222, 131);
+	color: rgb(255, 174, 0);
 	font-weight: bold;
-	font-size: 30px;
+	font-size: 40px;
 }
 
 .prayers {
@@ -155,7 +156,7 @@ body::after {
 	min-height: 350px;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 500px) {
 	.info {
 		max-width: 300px;
 	}
@@ -164,20 +165,29 @@ body::after {
 	}
 }
 
+@media (max-width: 920px) {
+	.prayers {
+		margin-top: 60px;
+	}
+}
+
 .prayers ul {
-	padding: 0 20px;
+	padding: 0 20px 20px;
 	width: 100%;
+	margin-bottom: -20px;
 }
 
 .prayers .prayer {
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 	margin-bottom: 10px;
 	background-color: rgba(240, 248, 255, 0.514);
 	padding: 0 10px;
 	border-radius: 2px;
 	font-size: 20px;
 	width: 400px;
+	height: 45px;
 	transition: transform 0.3s ease;
 }
 
