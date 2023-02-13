@@ -19,8 +19,8 @@ const userYear = userDate.getFullYear();
 // 4. get the time untill next prayer.
 getUserLocation().then(res => {
     const getPrayersInputs = {
-        city: res.city,
-        country: res.country_name,
+        city: res.city || 'Cairo',
+        country: res.country_name || 'EG',
         month: userMonth,
         year: userYear
     }
@@ -50,8 +50,8 @@ async function getUserLocation() {
     const data = await response.json();
 
     // set the city and country from the location returned by the ip address.
-    document.querySelector('.info .location .city').innerHTML = data.city;
-    document.querySelector('.info .location .country').innerHTML = data.country_code;
+    document.querySelector('.info .location .city').innerHTML = data.city || 'Cairo';
+    document.querySelector('.info .location .country').innerHTML = data.country_code || 'EG';
 
     return Promise.resolve(data);
 }
@@ -59,7 +59,7 @@ async function getUserLocation() {
 // get country name from city name.
 async function getCountryName(city) {
     try {
-        const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
+        const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city.trim()}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
         const response = await fetch(countryNameApi);
         const data = await response.json();
 
@@ -241,6 +241,9 @@ function getNextPrayer({ time, date, prayers }) {
 
 // get prayers of specific city from the user input.
 function getPrayersFromUserInput(input) {
+    // prevent the user from making http requests for empty string.
+    if (input == '') return;
+
     getCountryName(input).then(res => {
         const getPrayersInputs = {
             city: res.city,
