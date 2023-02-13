@@ -43,13 +43,18 @@ body::after {
 }
 
 .info {
-	min-width: 300px;
 	min-height: 350px;
 	border-radius: 5px;
 	padding: 20px;
 	color: #fff;
 	display: flex;
 	flex-direction: column;
+}
+
+@media (min-width: 900px) {
+	.info {
+		min-width: 450px;
+	}
 }
 
 .info input {
@@ -95,19 +100,26 @@ body::after {
 
 @media (min-width: 900px) {
 	.info .location .city {
-		font-size: 55px;
+		font-size: 75px;
 		font-weight: 500;
 	}
 }
 
 .info .location .country {
-	font-size: 15px;
+	font-size: 20px;
 }
 
 .info .date-time {
 	margin-top: -10px;
 	font-size: 15px;
 	font-weight: 200;
+}
+
+@media (min-width: 900px) {
+	.info .date-time {
+		margin-top: -40px;
+		margin-bottom: 10px;
+	}
 }
 
 .info .date-time .time {
@@ -188,7 +200,7 @@ body::after {
 	padding: 0 10px;
 	border-radius: 2px;
 	font-size: 20px;
-	width: 400px;
+	width: 450px;
 	height: 45px;
 	transition: transform 0.3s ease;
 }

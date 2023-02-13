@@ -54,7 +54,7 @@ async function getUserLocation() {
 
     // set the city and country from the location returned by the ip address.
     document.querySelector('.info .location .city').innerHTML = data.city || 'Cairo';
-    document.querySelector('.info .location .country').innerHTML = data.country_code || 'EG';
+    document.querySelector('.info .location .country').innerHTML = `,${data.country_code}` || ',EG';
 
     // remove loader
     document.querySelector('.lds-ring').classList.remove('active');
@@ -71,7 +71,7 @@ async function getCountryName(city) {
 
         // set the city and country from the location inputed by the user.
         document.querySelector('.info .location .city').innerHTML = data.name;
-        document.querySelector('.info .location .country').innerHTML = data.sys.country;
+        document.querySelector('.info .location .country').innerHTML = `,${data.sys.country}`;
 
         return Promise.resolve({ city: data.name, country: data.sys.country });
 
@@ -96,7 +96,7 @@ async function getUserDateTime({ timezone }) {
     const year = dateData.data.slice(6);
 
     // set date and time based on the timezone.
-    document.querySelector('.info .date-time .date').innerHTML = `${day} ${monthArr[month - 1]} ${year}`;
+    document.querySelector('.info .date-time .date').innerHTML = `- ${day} ${monthArr[month - 1]} ${year}`;
     document.querySelector('.info .date-time .time').innerHTML = `${parseInt(hour) > 12 ? hour - 12 : hour}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
 
     return Promise.resolve({ date: dateData.data, time: timeData.data });
