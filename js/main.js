@@ -46,12 +46,18 @@ document.querySelector('.search i').addEventListener('click', () => {
 
 // get user location via his ip address.
 async function getUserLocation() {
+    // run loader
+    document.querySelector('.lds-ring').classList.add('active');
+
     const response = await fetch(userLocationApi);
     const data = await response.json();
 
     // set the city and country from the location returned by the ip address.
     document.querySelector('.info .location .city').innerHTML = data.city || 'Cairo';
     document.querySelector('.info .location .country').innerHTML = data.country_code || 'EG';
+
+    // remove loader
+    document.querySelector('.lds-ring').classList.remove('active');
 
     return Promise.resolve(data);
 }
@@ -80,6 +86,7 @@ async function getCountryName(city) {
 
 // get date and time based on timezone returned from prayers api.
 async function getUserDateTime({ timezone }) {
+
     const timeResponse = await fetch(`${userTimeApi}${timezone}`);
     const timeData = await timeResponse.json();
     const dateResponse = await fetch(`${userDateApi}${timezone}`);
@@ -101,6 +108,9 @@ async function getUserDateTime({ timezone }) {
 
 // get prayers via city, country, month and year.
 async function getPrayers({ city, country, month, year }) {
+    // run loader
+    document.querySelector('.lds-ring').classList.add('active');
+
     const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city}&country=${country}&method=5&month=${month < 10 ? `0${month + 1}` : month + 1}&year=${year}`;
     const response = await fetch(userPrayersApi);
     const data = await response.json();
@@ -164,6 +174,9 @@ async function getPrayers({ city, country, month, year }) {
         // calculate the next payer based on the time we are in now and the today's prayers times.
         getNextPrayer(getNextPrayerInputs);
     });
+
+    // remove loader
+    document.querySelector('.lds-ring').classList.remove('active');
 }
 
 // get next prayer and the remaining time untill it.
