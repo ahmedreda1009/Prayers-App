@@ -49,7 +49,7 @@ async function getUserDateTime({ timezone }) {
     const year = dateResponse.data.data.slice(6);
 
     document.querySelector('.info .date-time .date').innerHTML = `${day} ${monthArr[month - 1]} ${year}`;
-    document.querySelector('.info .date-time .time').innerHTML = `${parseInt(hour) > 12 ? hour - 12 : hour}:${minute < 10 ? `0${minute}` : minute} ${hour >= 12 ? 'PM' : 'AM'}`;
+    document.querySelector('.info .date-time .time').innerHTML = `${parseInt(hour) > 12 ? hour - 12 : hour}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
 
     return Promise.resolve({ date: dateResponse.data.data, time: timeResponse.data.data })
 }
@@ -105,6 +105,37 @@ async function getPrayers({ city, country, month, year }) {
     })
 }
 
+function getNextPrayer({ time, date, prayers }) {
+    date = `${date.slice(6)}-${date.slice(3, 5)}-${date.slice(0, 2)}`
+
+    const prayersArray = [prayers.fajr, prayers.sunrise, prayers.dhuhr, prayers.asr, prayers.maghrib, prayers.isha];
+
+    const nextPrayersArray = prayersArray.filter((ele) => {
+        return (new Date(`${date} ${time}`)) <= (new Date(`${date} ${ele}`));
+    })
+
+    document.querySelectorAll('.prayers .prayer').forEach(ele => {
+        ele.classList.remove('active');
+    })
+
+    if (nextPrayersArray.length >= 1) {
+        const nextPrayerIdx = prayersArray.indexOf(nextPrayersArray.shift())
+        document.querySelectorAll('.prayers .prayer')[nextPrayerIdx].classList.add('active');
+        document.querySelector('.info .next-prayer-time span').innerHTML = document.querySelectorAll('.prayers .prayer .prayer-name')[nextPrayerIdx].innerHTML;
+
+        const remainingTime = (new Date(`${date} ${prayersArray[nextPrayerIdx]}`)) - (new Date(`${date} ${time}`));
+
+        const hours = Math.floor(remainingTime / 1000 / 60 / 60);
+        const minutes = (remainingTime / 1000 / 60) - (hours * 60);
+
+        document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes}`;
+
+    } else {
+        document.querySelector('.prayers .prayer').classList.add('active');
+    }
+
+}
+
 function getPrayersFromUserInput(input) {
     getCountryName(input).then(res => {
         const getPrayersInputs = {
@@ -116,7 +147,6 @@ function getPrayersFromUserInput(input) {
         getPrayers(getPrayersInputs)
     })
 }
-
 
 getUserLocation().then(res => {
     const getPrayersInputs = {
@@ -144,31 +174,6 @@ document.querySelector('.search i').addEventListener('click', () => {
     getPrayersFromUserInput(input.value);
     input.value = '';
 });
-
-function getNextPrayer({ time, date, prayers }) {
-    date = `${date.slice(6)}-${date.slice(3, 5)}-${date.slice(0, 2)}`
-
-    // console.log(new Date(`${date} ${time}`));
-
-    const prayersArray = [prayers.fajr, prayers.sunrise, prayers.dhuhr, prayers.asr, prayers.maghrib, prayers.isha];
-
-    const nextPrayersArray = prayersArray.filter((ele) => {
-        return (new Date(`${date} ${time}`)) <= (new Date(`${date} ${ele}`));
-    })
-
-    document.querySelectorAll('.prayers .prayer').forEach(ele => {
-        ele.classList.remove('active');
-    })
-
-    if (nextPrayersArray.length > 1) {
-        document.querySelectorAll('.prayers .prayer')[prayersArray.indexOf(nextPrayersArray.shift())].classList.add('active');
-    } else {
-        document.querySelector('.prayers .prayer').classList.add('active');
-    }
-
-}
-
-
 
 // console.log(nextPrayersArray);
 // const cityTime = new Date(`${date} ${time}`);
