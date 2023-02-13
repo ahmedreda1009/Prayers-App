@@ -1,6 +1,7 @@
 const userDateApi = 'http://api.aladhan.com/v1/currentDate?zone=';
 const userTimeApi = 'http://api.aladhan.com/v1/currentTime?zone=';
-const userLocationApi = 'http://ip-api.com/json/';
+// const userLocationApi = 'http://ip-api.com/json/';
+const userLocationApi = 'https://geolocation-db.com/json/';
 const monthArr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 
@@ -15,7 +16,7 @@ async function getUserLocation() {
     const data = await response.json();
 
     document.querySelector('.info .location .city').innerHTML = data.city;
-    document.querySelector('.info .location .country').innerHTML = data.countryCode;
+    document.querySelector('.info .location .country').innerHTML = data.country_code;
 
     return Promise.resolve(data);
 }
@@ -174,7 +175,7 @@ function getPrayersFromUserInput(input) {
 getUserLocation().then(res => {
     const getPrayersInputs = {
         city: res.city,
-        country: res.country,
+        country: res.country_name,
         month: userMonth,
         year: userYear
     }
