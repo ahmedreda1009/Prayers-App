@@ -11,27 +11,29 @@ const userYear = userDate.getFullYear();
 
 
 async function getUserLocation() {
-    const response = await axios.get(userLocationApi);
+    const response = await fetch(userLocationApi);
+    const data = await response.json();
 
-    document.querySelector('.info .location .city').innerHTML = response.data.city;
-    document.querySelector('.info .location .country').innerHTML = response.data.countryCode;
+    document.querySelector('.info .location .city').innerHTML = data.city;
+    document.querySelector('.info .location .country').innerHTML = data.countryCode;
 
-    return Promise.resolve(response.data);
+    return Promise.resolve(data);
 }
 
 async function getCountryName(city) {
     try {
         const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
-        const response = await axios.get(countryNameApi);
+        const response = await fetch(countryNameApi);
+        const data = await response.json();
 
         // get country name from country code.
         let regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
-        let countryName = regionNames.of(response.data.sys.country);
+        let countryName = regionNames.of(data.sys.country);
 
-        document.querySelector('.info .location .city').innerHTML = response.data.name;
-        document.querySelector('.info .location .country').innerHTML = response.data.sys.country;
+        document.querySelector('.info .location .city').innerHTML = data.name;
+        document.querySelector('.info .location .country').innerHTML = data.sys.country;
 
-        return Promise.resolve({ city: response.data.name, country: countryName });
+        return Promise.resolve({ city: data.name, country: countryName });
 
     } catch (error) {
         console.log(error.message);
@@ -39,26 +41,29 @@ async function getCountryName(city) {
 }
 
 async function getUserDateTime({ timezone }) {
-    const timeResponse = await axios.get(`${userTimeApi}${timezone}`);
-    const dateResponse = await axios.get(`${userDateApi}${timezone}`);
+    const timeResponse = await fetch(`${userTimeApi}${timezone}`);
+    const timeData = await timeResponse.json();
+    const dateResponse = await fetch(`${userDateApi}${timezone}`);
+    const dateData = await dateResponse.json();
 
-    const hour = timeResponse.data.data.slice(0, 2);
-    const minute = timeResponse.data.data.slice(3, 5);
-    const day = dateResponse.data.data.slice(0, 2);
-    const month = parseInt(dateResponse.data.data.slice(3, 5));
-    const year = dateResponse.data.data.slice(6);
+    const hour = timeData.data.slice(0, 2);
+    const minute = timeData.data.slice(3, 5);
+    const day = dateData.data.slice(0, 2);
+    const month = parseInt(dateData.data.slice(3, 5));
+    const year = dateData.data.slice(6);
 
     document.querySelector('.info .date-time .date').innerHTML = `${day} ${monthArr[month - 1]} ${year}`;
     document.querySelector('.info .date-time .time').innerHTML = `${parseInt(hour) > 12 ? hour - 12 : hour}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
 
-    return Promise.resolve({ date: dateResponse.data.data, time: timeResponse.data.data })
+    return Promise.resolve({ date: dateData.data, time: timeData.data })
 }
 
 async function getPrayers({ city, country, month, year }) {
     const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city}&country=${country}&method=5&month=${month < 10 ? `0${month + 1}` : month + 1}&year=${year}`;
-    const response = await axios.get(userPrayersApi);
+    const response = await fetch(userPrayersApi);
+    const data = await response.json();
 
-    const timings = response.data.data[userDay - 1].timings;
+    const timings = JSON.parse(JSON.stringify(data.data[userDay - 1].timings));
 
     for (let time in timings) {
         timings[time] = timings[time].slice(0, 5);
@@ -86,7 +91,9 @@ async function getPrayers({ city, country, month, year }) {
     prayersTime[4].innerHTML = timings.Maghrib;
     prayersTime[5].innerHTML = timings.Isha;
 
-    getUserDateTime({ timezone: response.data.data[0].meta.timezone }).then(res => {
+    getUserDateTime({ timezone: data.data[0].meta.timezone }).then(res => {
+
+        const timings = data.data[userDay - 1].timings;
 
         const getNextPrayerInputs =
         {
@@ -106,6 +113,8 @@ async function getPrayers({ city, country, month, year }) {
 }
 
 function getNextPrayer({ time, date, prayers }) {
+
+
     date = `${date.slice(6)}-${date.slice(3, 5)}-${date.slice(0, 2)}`
 
     const prayersArray = [prayers.fajr, prayers.sunrise, prayers.dhuhr, prayers.asr, prayers.maghrib, prayers.isha];
@@ -130,8 +139,22 @@ function getNextPrayer({ time, date, prayers }) {
 
         document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes}`;
 
-    } else {
+    } else if ((new Date(`${date} ${time}`)) < (new Date(`${date} 23:59`)) && nextPrayersArray.length == 0) {
         document.querySelector('.prayers .prayer').classList.add('active');
+
+        let oldDay = date.slice(8);
+        let newDay = +oldDay + 1;
+        newDay = newDay < 10 ? `0${newDay}` : `${newDay}`;
+
+        // add one day to the fajr time to calculate the remaining time between now and the fajr of the next day
+        const remainingTime = (new Date(`${`${date.slice(0, 4)}-${date.slice(5, 7)}-${newDay}`} ${prayersArray[0]}`)) - (new Date(`${date} ${time}`));
+
+        const hours = Math.floor(remainingTime / 1000 / 60 / 60);
+        const minutes = (remainingTime / 1000 / 60) - (hours * 60);
+
+        document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes}`;
+
+        document.querySelector('.info .next-prayer-time span').innerHTML = 'Fajr';
     }
 
 }

@@ -90,6 +90,12 @@ body::after {
 	font-weight: 200;
 }
 
+@media (max-width: 500px) {
+	.info .location .city {
+		font-size: 35px;
+	}
+}
+
 .info .location .country {
 	font-size: 15px;
 	/* font-weight: 200; */
@@ -158,10 +164,10 @@ body::after {
 
 @media (max-width: 500px) {
 	.info {
-		max-width: 300px;
+		width: 350px;
 	}
 	.prayers {
-		max-width: 300px;
+		width: 350px;
 	}
 }
 
@@ -174,7 +180,7 @@ body::after {
 .prayers ul {
 	padding: 0 20px 20px;
 	width: 100%;
-	margin-bottom: -20px;
+	margin-bottom: -45px;
 }
 
 .prayers .prayer {
