@@ -52,7 +52,7 @@ async function getUserLocation() {
     } catch (error) {
         console.log(new Error(error.message + " user location from ip address."));
 
-        return { city: 'Cairo', country_name: ',Egypt' };
+        return { city: 'Cairo', country_name: 'Egypt' };
     }
 }
 
@@ -65,10 +65,7 @@ async function getCountryName(city) {
         const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city.trim()}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
         const response = await fetch(countryNameApi);
         const data = await response.json();
-
-        // set the city and country from the location inputed by the user.
-        document.querySelector('.info .location .city').innerHTML = data.name || 'Cairo';
-        document.querySelector('.info .location .country').innerHTML = `,${data.sys.country}`;
+        console.log('wrong city');
 
         return { city: data.name, country: data.sys.country };
 
@@ -77,7 +74,10 @@ async function getCountryName(city) {
 
         alert('Enter a valid city name.');
 
-        return { city: 'Cairo', country: 'Egypt' };
+        // return { city: 'Cairo', country: 'EG' };
+
+        // remove loader
+        document.querySelector('.lds-ring').classList.remove('active');
     }
 }
 
@@ -108,12 +108,12 @@ async function getUserDateTime({ timezone }) {
 }
 
 // get prayers via city, country, month and year.
-async function getPrayers({ city, country, month, year }) {
+async function getPrayers({ city, country }) {
 
     try {
-        const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city || 'Cairo'}&country=${country || 'Egypt'}&method=5&month=${month < 10 ? `0${month + 1}` : month + 1}&year=${year}`;
+        const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city || 'Cairo'}&country=${country || 'Egypt'}&method=5&month=${userMonth + 1}&year=${userYear}`;
         const response = await fetch(userPrayersApi);
-        const data = await response.json();
+        const data = await response.json(); console.log(data);
 
         // deep clone the data object to generate a new way to represent prayers time data as 12 hours systen.
         const timings = JSON.parse(JSON.stringify(data.data[userDay - 1].timings));
@@ -255,22 +255,30 @@ function getNextPrayer({ time, date, prayers }) {
 
 // get prayers of specific city from the user input.
 async function getPrayersFromUserInput(input) {
-    // prevent the user from making http requests for empty string.
-    if (input == '') return;
+    try {
+        // prevent the user from making http requests for empty string.
+        if (input == '') return;
 
-    const res = await getCountryName(input);
+        const res = await getCountryName(input);
 
-    const getPrayersInputs = {
-        city: res.city,
-        country: res.country,
-        month: userMonth,
-        year: userYear
+        const getPrayersInputs = {
+            city: res.city,
+            country: res.country
+        }
+
+
+        // set the city and country from the location inputed by the user.
+        document.querySelector('.info .location .city').innerHTML = getPrayersInputs.city;
+        document.querySelector('.info .location .country').innerHTML = `,${getPrayersInputs.country}`;
+
+        await getPrayers(getPrayersInputs);
+
+    } catch (error) {
+        console.log(new Error(error.message));
+    } finally {
+        // empty the search box.
+        userInput.value = '';
     }
-
-    await getPrayers(getPrayersInputs);
-
-    // empty the search box.
-    userInput.value = '';
 }
 
 // the starting point of the application:
@@ -282,9 +290,7 @@ async function appInit() {
     const res = await getUserLocation();
     const getPrayersInputs = {
         city: res.city,
-        country: res.country_name,
-        month: userMonth,
-        year: userYear
+        country: res.country_name
     }
     getPrayers(getPrayersInputs);
 }
