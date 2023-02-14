@@ -96,9 +96,19 @@ async function getUserDateTime({ timezone }) {
         const month = parseInt(dateData.data.slice(3, 5));
         const year = dateData.data.slice(6);
 
-        // set date and time based on the timezone.
+        // set time based on the timezone.
+        if (hour >= 12) {
+            if (hour > 12) {
+                document.querySelector('.info .date-time .time').innerHTML = `${hour - 12 < 10 ? `0${hour - 12}` : hour - 12}:${minute} PM`;
+            } else {
+                document.querySelector('.info .date-time .time').innerHTML = `${hour}:${minute} PM`;
+            }
+        } else {
+            document.querySelector('.info .date-time .time').innerHTML = `${hour < 10 ? `0${hour}` : hour}:${minute} AM`;
+        }
+
+        // set date based on the timezone.
         document.querySelector('.info .date-time .date').innerHTML = ` ${day} ${monthArr[month - 1]} ${year}`;
-        document.querySelector('.info .date-time .time').innerHTML = `${hour > 12 ? `0${hour - 12}` : `0${hour}`}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
 
         return { date: dateData.data, time: timeData.data };
     } catch (error) {
@@ -132,7 +142,7 @@ async function getPrayers({ city, country }) {
                 if (hours > 12) {
                     timings[time] = `${hours - 12 < 10 ? `0${hours - 12}` : hours - 12}:${minutes} PM`;
                 } else {
-                    timings[time] = `${hours < 10 ? `0${hours}` : hours}:${minutes} PM`;
+                    timings[time] = `${hours}:${minutes} PM`;
                 }
             } else {
                 timings[time] = `${hours < 10 ? `0${hours}` : hours}:${minutes} AM`;
