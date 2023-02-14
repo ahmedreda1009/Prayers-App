@@ -17,17 +17,7 @@ const userYear = userDate.getFullYear();
 // 2. get prayers based on the user location.
 // 3. get the date and time based on the timezone returned by the prayers api.
 // 4. get the time untill next prayer.
-getUserLocation().then(res => {
-    const getPrayersInputs = {
-        city: res.city || 'Cairo',
-        country: res.country_name || 'EG',
-        month: userMonth,
-        year: userYear
-    }
-    getPrayers(getPrayersInputs);
-}).catch(e => {
-    console.log(e.message);
-});
+appInit();
 
 // get user input.
 const userInput = document.querySelector('.info input');
@@ -49,130 +39,145 @@ async function getUserLocation() {
     // run loader
     document.querySelector('.lds-ring').classList.add('active');
 
-    const response = await fetch(userLocationApi);
-    const data = await response.json();
+    try {
+        const response = await fetch(userLocationApi);
+        const data = await response.json();
 
-    // set the city and country from the location returned by the ip address.
-    document.querySelector('.info .location .city').innerHTML = data.city || 'Cairo';
-    document.querySelector('.info .location .country').innerHTML = `,${data.country_code}` || ',EG';
+        // set the city and country from the location returned by the ip address.
+        document.querySelector('.info .location .city').innerHTML = data.city || 'Cairo';
+        document.querySelector('.info .location .country').innerHTML = `,${data.country_code}` || ',EG';
 
-    // remove loader
-    document.querySelector('.lds-ring').classList.remove('active');
+        return data;
 
-    return Promise.resolve(data);
+    } catch (error) {
+        console.log(new Error(error.message + " user location from ip address."));
+
+        return { city: 'Cairo', country_name: ',Egypt' };
+    }
 }
 
 // get country name from city name.
 async function getCountryName(city) {
+    // run loader
+    document.querySelector('.lds-ring').classList.add('active');
+
     try {
         const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city.trim()}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
         const response = await fetch(countryNameApi);
         const data = await response.json();
 
         // set the city and country from the location inputed by the user.
-        document.querySelector('.info .location .city').innerHTML = data.name;
+        document.querySelector('.info .location .city').innerHTML = data.name || 'Cairo';
         document.querySelector('.info .location .country').innerHTML = `,${data.sys.country}`;
 
-        return Promise.resolve({ city: data.name, country: data.sys.country });
+        return { city: data.name, country: data.sys.country };
 
     } catch (error) {
-        console.log(error.message);
+        console.log(new Error(error.message));
+
+        alert('Enter a valid city name.');
+
+        return { city: 'Cairo', country: 'Egypt' };
     }
 }
 
 // get date and time based on timezone returned from prayers api.
 async function getUserDateTime({ timezone }) {
 
-    const timeResponse = await fetch(`${userTimeApi}${timezone}`);
-    const timeData = await timeResponse.json();
-    const dateResponse = await fetch(`${userDateApi}${timezone}`);
-    const dateData = await dateResponse.json();
+    try {
+        const timeResponse = await fetch(`${userTimeApi}${timezone}`);
+        const timeData = await timeResponse.json();
+        const dateResponse = await fetch(`${userDateApi}${timezone}`);
+        const dateData = await dateResponse.json();
 
-    // slice the date and time responses to manipulate the way they are represented.
-    const hour = timeData.data.slice(0, 2);
-    const minute = timeData.data.slice(3, 5);
-    const day = dateData.data.slice(0, 2);
-    const month = parseInt(dateData.data.slice(3, 5));
-    const year = dateData.data.slice(6);
+        // slice the date and time responses to manipulate the way they are represented.
+        const hour = parseInt(timeData.data.slice(0, 2));
+        const minute = timeData.data.slice(3, 5);
+        const day = dateData.data.slice(0, 2);
+        const month = parseInt(dateData.data.slice(3, 5));
+        const year = dateData.data.slice(6);
 
-    // set date and time based on the timezone.
-    document.querySelector('.info .date-time .date').innerHTML = `- ${day} ${monthArr[month - 1]} ${year}`;
-    document.querySelector('.info .date-time .time').innerHTML = `${parseInt(hour) > 12 ? hour - 12 : hour}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
+        // set date and time based on the timezone.
+        document.querySelector('.info .date-time .date').innerHTML = ` ${day} ${monthArr[month - 1]} ${year}`;
+        document.querySelector('.info .date-time .time').innerHTML = `${hour > 12 ? `0${hour - 12}` : `0${hour}`}:${minute} ${hour >= 12 ? 'PM' : 'AM'}`;
 
-    return Promise.resolve({ date: dateData.data, time: timeData.data });
+        return { date: dateData.data, time: timeData.data };
+    } catch (error) {
+        console.log(error.message);
+    }
 }
 
 // get prayers via city, country, month and year.
 async function getPrayers({ city, country, month, year }) {
-    // run loader
-    document.querySelector('.lds-ring').classList.add('active');
 
-    const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city}&country=${country}&method=5&month=${month < 10 ? `0${month + 1}` : month + 1}&year=${year}`;
-    const response = await fetch(userPrayersApi);
-    const data = await response.json();
+    try {
+        const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city}&country=${country}&method=5&month=${month < 10 ? `0${month + 1}` : month + 1}&year=${year}`;
+        const response = await fetch(userPrayersApi);
+        const data = await response.json();
 
-    // deep clone the data object to generate a new way to represent prayers time data as 12 hours systen.
-    const timings = JSON.parse(JSON.stringify(data.data[userDay - 1].timings));
+        // deep clone the data object to generate a new way to represent prayers time data as 12 hours systen.
+        const timings = JSON.parse(JSON.stringify(data.data[userDay - 1].timings));
 
-    // loop over the prayers time data to appropriately represent them.
-    for (let time in timings) {
+        // loop over the prayers time data to appropriately represent them.
+        for (let time in timings) {
 
-        // remove the (EET) string from the times.
-        timings[time] = timings[time].slice(0, 5);
+            // remove the (EET) string from the times.
+            timings[time] = timings[time].slice(0, 5);
 
-        const hours = parseInt(timings[time].slice(0, 2));
-        const minutes = timings[time].slice(3, 5);
+            const hours = parseInt(timings[time].slice(0, 2));
+            const minutes = timings[time].slice(3, 5);
 
-        // put 0 before the hours and minutes that are less than 10.
-        // put am and pm.
-        if (hours >= 12) {
-            if (hours > 12) {
-                timings[time] = `${hours - 12 < 10 ? `0${hours - 12}` : hours - 12}:${minutes} PM`;
+            // put 0 before the hours and minutes that are less than 10.
+            // put am and pm.
+            if (hours >= 12) {
+                if (hours > 12) {
+                    timings[time] = `${hours - 12 < 10 ? `0${hours - 12}` : hours - 12}:${minutes} PM`;
+                } else {
+                    timings[time] = `${hours < 10 ? `0${hours}` : hours}:${minutes} PM`;
+                }
             } else {
-                timings[time] = `${hours < 10 ? `0${hours}` : hours}:${minutes} PM`;
+                timings[time] = `${hours < 10 ? `0${hours}` : hours}:${minutes} AM`;
             }
-        } else {
-            timings[time] = `${hours < 10 ? `0${hours}` : hours}:${minutes} AM`;
         }
-    }
 
-    // get the divs in which we will represent the prayers times.
-    const prayersTime = document.querySelectorAll('.prayers .prayer .prayer-time');
+        // get the divs in which we will represent the prayers times.
+        const prayersTime = document.querySelectorAll('.prayers .prayer .prayer-time');
 
-    // put prayers times in the UI.
-    prayersTime[0].innerHTML = timings.Fajr;
-    prayersTime[1].innerHTML = timings.Sunrise;
-    prayersTime[2].innerHTML = timings.Dhuhr;
-    prayersTime[3].innerHTML = timings.Asr;
-    prayersTime[4].innerHTML = timings.Maghrib;
-    prayersTime[5].innerHTML = timings.Isha;
+        // put prayers times in the UI.
+        prayersTime[0].innerHTML = timings.Fajr;
+        prayersTime[1].innerHTML = timings.Sunrise;
+        prayersTime[2].innerHTML = timings.Dhuhr;
+        prayersTime[3].innerHTML = timings.Asr;
+        prayersTime[4].innerHTML = timings.Maghrib;
+        prayersTime[5].innerHTML = timings.Isha;
 
-    // get the user date and time based on the timezone.
-    getUserDateTime({ timezone: data.data[0].meta.timezone }).then(res => {
+        // get the user date and time based on the timezone.
+        const res = await getUserDateTime({ timezone: data.data[0].meta.timezone });
 
         // get the timings of the prayers for today.
-        const timings = data.data[userDay - 1].timings;
+        const timings24HSys = data.data[userDay - 1].timings;
 
-        const getNextPrayerInputs =
-        {
+        const getNextPrayerInputs = {
             time: res.time,
             date: res.date,
             prayers: {
-                fajr: timings.Fajr.slice(0, 5),
-                sunrise: timings.Sunrise.slice(0, 5),
-                dhuhr: timings.Dhuhr.slice(0, 5),
-                asr: timings.Asr.slice(0, 5),
-                maghrib: timings.Maghrib.slice(0, 5),
-                isha: timings.Isha.slice(0, 5)
+                fajr: timings24HSys.Fajr.slice(0, 5),
+                sunrise: timings24HSys.Sunrise.slice(0, 5),
+                dhuhr: timings24HSys.Dhuhr.slice(0, 5),
+                asr: timings24HSys.Asr.slice(0, 5),
+                maghrib: timings24HSys.Maghrib.slice(0, 5),
+                isha: timings24HSys.Isha.slice(0, 5)
             }
         }
 
         // calculate the next payer based on the time we are in now and the today's prayers times.
         getNextPrayer(getNextPrayerInputs);
-    });
 
-    // remove loader
-    document.querySelector('.lds-ring').classList.remove('active');
+        // remove loader
+        document.querySelector('.lds-ring').classList.remove('active');
+    } catch (error) {
+        console.log(error.message);
+    }
 }
 
 // get next prayer and the remaining time untill it.
@@ -220,7 +225,7 @@ function getNextPrayer({ time, date, prayers }) {
         // set the remaining houres and minites till the next prayer.
         document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes}`;
 
-        // if the pryaers of the current day ends, we will calc the time till next fajr which will be tomorrow.
+        // if the pryaers of the current day ended, we will calc the time till next fajr which will be tomorrow.
     } else if ((new Date(`${date} ${time}`)) < (new Date(`${date} 23:59`)) && nextPrayersArray.length == 0) {
 
         //  add active class to the fajr prayer of the next day.
@@ -249,20 +254,37 @@ function getNextPrayer({ time, date, prayers }) {
 }
 
 // get prayers of specific city from the user input.
-function getPrayersFromUserInput(input) {
+async function getPrayersFromUserInput(input) {
     // prevent the user from making http requests for empty string.
     if (input == '') return;
 
-    getCountryName(input).then(res => {
-        const getPrayersInputs = {
-            city: res.city,
-            country: res.country,
-            month: userMonth,
-            year: userYear
-        }
-        getPrayers(getPrayersInputs);
-    });
+    const res = await getCountryName(input);
+
+    const getPrayersInputs = {
+        city: res.city,
+        country: res.country,
+        month: userMonth,
+        year: userYear
+    }
+
+    await getPrayers(getPrayersInputs);
 
     // empty the search box.
     userInput.value = '';
+}
+
+// the starting point of the application:
+// 1. get the user location by ip.
+// 2. get prayers based on the user location.
+// 3. get the date and time based on the timezone returned by the prayers api.
+// 4. get the time untill next prayer.
+async function appInit() {
+    const res = await getUserLocation();
+    const getPrayersInputs = {
+        city: res.city,
+        country: res.country_name,
+        month: userMonth,
+        year: userYear
+    }
+    getPrayers(getPrayersInputs);
 }

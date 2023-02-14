@@ -101,7 +101,7 @@ body::after {
 
 @media (min-width: 900px) {
 	.info .location .city {
-		font-size: 75px;
+		font-size: 65px;
 		font-weight: 500;
 	}
 }
@@ -118,7 +118,7 @@ body::after {
 
 @media (min-width: 900px) {
 	.info .date-time {
-		margin-top: -40px;
+		margin-top: -30px;
 		margin-bottom: 10px;
 	}
 }
