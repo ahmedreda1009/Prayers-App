@@ -111,7 +111,7 @@ async function getUserDateTime({ timezone }) {
 async function getPrayers({ city, country, month, year }) {
 
     try {
-        const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city}&country=${country}&method=5&month=${month < 10 ? `0${month + 1}` : month + 1}&year=${year}`;
+        const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city || 'Cairo'}&country=${country || 'Egypt'}&method=5&month=${month < 10 ? `0${month + 1}` : month + 1}&year=${year}`;
         const response = await fetch(userPrayersApi);
         const data = await response.json();
 
