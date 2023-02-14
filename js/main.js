@@ -65,7 +65,6 @@ async function getCountryName(city) {
         const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city.trim()}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
         const response = await fetch(countryNameApi);
         const data = await response.json();
-        console.log('wrong city');
 
         return { city: data.name, country: data.sys.country };
 
@@ -113,7 +112,7 @@ async function getPrayers({ city, country }) {
     try {
         const userPrayersApi = `http://api.aladhan.com/v1/calendarByCity?city=${city || 'Cairo'}&country=${country || 'Egypt'}&method=5&month=${userMonth + 1}&year=${userYear}`;
         const response = await fetch(userPrayersApi);
-        const data = await response.json(); console.log(data);
+        const data = await response.json();
 
         // deep clone the data object to generate a new way to represent prayers time data as 12 hours systen.
         const timings = JSON.parse(JSON.stringify(data.data[userDay - 1].timings));
