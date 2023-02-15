@@ -37,7 +37,7 @@ body::after {
 	align-items: center;
 }
 
-@media (max-width: 920px) {
+@media (max-width: 1030px) {
 	.container {
 		display: block;
 	}
@@ -130,7 +130,7 @@ body::after {
 .info .next-prayer-time {
 	margin-top: auto;
 	height: 120px;
-	width: 400px;
+	width: 450px;
 	text-align: center;
 }
 
@@ -150,6 +150,13 @@ body::after {
 .info .time-till-next time {
 	font-weight: 900;
 	font-size: 72px;
+}
+
+@media (max-width: 500px) {
+	.info .time-till-next time {
+		font-weight: 900;
+		font-size: 52px;
+	}
 }
 
 .info .next-prayer {
@@ -180,7 +187,7 @@ body::after {
 	}
 }
 
-@media (max-width: 920px) {
+@media (max-width: 1030px) {
 	.prayers {
 		margin-top: 60px;
 	}

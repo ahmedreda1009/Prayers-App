@@ -6,6 +6,17 @@ const userLocationApi = 'https://geolocation-db.com/json/';
 // months array.
 const monthArr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+// current city name.
+let currentCity = 'Cairo';
+let currentCountry = 'EG';
+
+// globak set interval id.
+let intervalId = null;
+
+// remaining time till next prayer.
+let remaining = 0;
+let remainingSeconds = 60;
+
 // user date.
 const userDate = new Date();
 const userDay = userDate.getDate();
@@ -47,6 +58,9 @@ async function getUserLocation() {
         document.querySelector('.info .location .city').innerHTML = data.city || 'Cairo';
         document.querySelector('.info .location .country').innerHTML = `,${data.country_code}` || ',EG';
 
+        currentCity = data.city;
+        currentCountry = data.country_code;
+
         return data;
 
     } catch (error) {
@@ -65,6 +79,9 @@ async function getCountryName(city) {
         const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city.trim()}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
         const response = await fetch(countryNameApi);
         const data = await response.json();
+
+        currentCity = data.name;
+        currentCountry = data.sys.country;
 
         return { city: data.name, country: data.sys.country };
 
@@ -163,7 +180,7 @@ async function getPrayers({ city, country }) {
         // get the user date and time based on the timezone.
         const res = await getUserDateTime({ timezone: data.data[0].meta.timezone });
 
-        // get the timings of the prayers for today.
+        // get the timings of the prayers for today in 24 hours system.
         const timings24HSys = data.data[userDay - 1].timings;
 
         const getNextPrayerInputs = {
@@ -178,7 +195,6 @@ async function getPrayers({ city, country }) {
                 isha: timings24HSys.Isha.slice(0, 5)
             }
         }
-
         // calculate the next payer based on the time we are in now and the today's prayers times.
         getNextPrayer(getNextPrayerInputs);
 
@@ -227,13 +243,26 @@ function getNextPrayer({ time, date, prayers }) {
         // dedducting the time of the present moment from the time of the next prayer array to calc the remaining time till next prayer.
         const remainingTime = (new Date(`${date} ${prayersArray[nextPrayerIdx]}`)) - (new Date(`${date} ${time}`));
 
-        // get the remaining houres and minites till the next prayer.
-        const hours = Math.floor(remainingTime / 1000 / 60 / 60);
-        const minutes = (remainingTime / 1000 / 60) - (hours * 60);
-        let seconds = '00';
+        remaining = remainingTime;
 
-        // set the remaining houres and minites till the next prayer.
-        document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes} : ${seconds}`;
+        // set interval on the remaining time until the next prayer time.
+        intervalId = setInterval(() => {
+
+            // if the remaining time is 0 then get the next prayer.
+            if (remaining == 0 && remainingSeconds == 0) getPrayersFromUserInput(currentCity);
+
+            // get the remaining houres and minites till the next prayer.
+            let hours = Math.floor(remaining / 1000 / 60 / 60);
+            let minutes = Math.ceil((remaining / 1000 / 60) - (hours * 60));
+
+            remaining -= 1000;
+            if (remainingSeconds == 0) remainingSeconds = 60;
+            remainingSeconds--;
+
+            // set the remaining houres and minites till the next prayer.
+            document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes} : ${remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds}`;
+
+        }, 1000);
 
         // if the pryaers of the current day ended, we will calc the time till next fajr which will be tomorrow.
     } else if ((new Date(`${date} ${time}`)) < (new Date(`${date} 23:59`)) && nextPrayersArray.length == 0) {
@@ -250,12 +279,26 @@ function getNextPrayer({ time, date, prayers }) {
         // add one day to the fajr time to calculate the remaining time between now and the fajr of the next day.
         const remainingTime = (new Date(`${`${date.slice(0, 4)}-${date.slice(5, 7)}-${newDay}`} ${prayersArray[0]}`)) - (new Date(`${date} ${time}`));
 
-        // get the hours and minutes till the next fajr of the next day.
-        const hours = Math.floor(remainingTime / 1000 / 60 / 60);
-        const minutes = (remainingTime / 1000 / 60) - (hours * 60);
+        remaining = remainingTime;
 
-        // set the remaining time of the fajr of the next day.
-        document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes}`;
+        // set interval on the remaining time until the next fajr time.
+        intervalId = setInterval(() => {
+
+            // if the remaining time is 0 then get the next prayer.
+            if (remaining == 0 && remainingSeconds == 0) getPrayersFromUserInput(currentCity);
+
+            // get the hours and minutes till the next fajr of the next day.
+            let hours = Math.floor(remainingTime / 1000 / 60 / 60);
+            let minutes = (remainingTime / 1000 / 60) - (hours * 60);
+
+            remaining -= 1000;
+            if (remainingSeconds == 0) remainingSeconds = 60;
+            remainingSeconds--;
+
+            // set the remaining time of the fajr of the next day.
+            document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes} : ${remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds}`;
+
+        }, 1000);
 
         // set the name of the next prayer which is the fajr of the next day so i put it statically.
         document.querySelector('.info .next-prayer-time span').innerHTML = 'Fajr';
@@ -276,12 +319,14 @@ async function getPrayersFromUserInput(input) {
             country: res.country
         }
 
+        // clear the last set interval in order to make a new one.
+        clearInterval(intervalId);
 
         // set the city and country from the location inputed by the user.
         document.querySelector('.info .location .city').innerHTML = getPrayersInputs.city;
         document.querySelector('.info .location .country').innerHTML = `,${getPrayersInputs.country}`;
 
-        await getPrayers(getPrayersInputs);
+        getPrayers(getPrayersInputs);
 
     } catch (error) {
         console.log(new Error(error.message));
