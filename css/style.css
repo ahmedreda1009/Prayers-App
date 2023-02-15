@@ -13,7 +13,8 @@ body {
 	margin: 0;
 	background-image: url(../assets/background.jpg);
 	background-size: cover;
-	background-position: right;
+	background-position: 90% 50%;
+	background-attachment: fixed;
 	height: 100vh;
 	font-family: "Cairo", sans-serif;
 	display: flex;
@@ -27,7 +28,6 @@ body::after {
 	position: fixed;
 	z-index: -1;
 	background-color: rgba(0, 0, 0, 0.5);
-        background-attachment: fixed;
 }
 
 .container {
@@ -149,7 +149,7 @@ body::after {
 
 .info .time-till-next time {
 	font-weight: 900;
-	font-size: 82px;
+	font-size: 72px;
 }
 
 .info .next-prayer {

@@ -230,9 +230,10 @@ function getNextPrayer({ time, date, prayers }) {
         // get the remaining houres and minites till the next prayer.
         const hours = Math.floor(remainingTime / 1000 / 60 / 60);
         const minutes = (remainingTime / 1000 / 60) - (hours * 60);
+        let seconds = '00';
 
         // set the remaining houres and minites till the next prayer.
-        document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes}`;
+        document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes} : ${seconds}`;
 
         // if the pryaers of the current day ended, we will calc the time till next fajr which will be tomorrow.
     } else if ((new Date(`${date} ${time}`)) < (new Date(`${date} 23:59`)) && nextPrayersArray.length == 0) {
