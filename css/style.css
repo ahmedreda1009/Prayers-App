@@ -93,6 +93,10 @@ body::after {
 	font-weight: 400;
 }
 
+.info .location .city.long {
+	font-size: 25px;
+}
+
 @media (max-width: 500px) {
 	.info .location .city {
 		font-size: 35px;
@@ -120,6 +124,10 @@ body::after {
 	.info .date-time {
 		margin-top: -30px;
 		margin-bottom: 10px;
+	}
+
+	.info .date-time.city-long {
+		margin-top: -10px;
 	}
 }
 
@@ -184,12 +192,6 @@ body::after {
 	}
 	.prayers {
 		width: 350px;
-	}
-}
-
-@media (max-width: 1030px) {
-	.prayers {
-		margin-top: 60px;
 	}
 }
 

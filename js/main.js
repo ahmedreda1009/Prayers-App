@@ -256,8 +256,9 @@ function getNextPrayer({ time, date, prayers }) {
             let minutes = Math.ceil((remaining / 1000 / 60) - (hours * 60));
 
             remaining -= 1000;
-            if (remainingSeconds == 0) remainingSeconds = 60;
             remainingSeconds--;
+            if (remaining < 0) remaining = 0;
+            if (remainingSeconds < 0) remainingSeconds = 59;
 
             // set the remaining houres and minites till the next prayer.
             document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes} : ${remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds}`;
@@ -287,13 +288,14 @@ function getNextPrayer({ time, date, prayers }) {
             // if the remaining time is 0 then get the next prayer.
             if (remaining == 0 && remainingSeconds == 0) getPrayersFromUserInput(currentCity);
 
-            // get the hours and minutes till the next fajr of the next day.
-            let hours = Math.floor(remainingTime / 1000 / 60 / 60);
-            let minutes = (remainingTime / 1000 / 60) - (hours * 60);
+            // get the remaining houres and minites till the next prayer.
+            let hours = Math.floor(remaining / 1000 / 60 / 60);
+            let minutes = Math.ceil((remaining / 1000 / 60) - (hours * 60));
 
             remaining -= 1000;
-            if (remainingSeconds == 0) remainingSeconds = 60;
             remainingSeconds--;
+            if (remaining < 0) remaining = 0;
+            if (remainingSeconds < 0) remainingSeconds = 59;
 
             // set the remaining time of the fajr of the next day.
             document.querySelector('.info .next-prayer-time time').innerHTML = `${hours < 10 ? `0${hours}` : hours} : ${minutes < 10 ? `0${minutes}` : minutes} : ${remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds}`;
@@ -322,9 +324,17 @@ async function getPrayersFromUserInput(input) {
         // clear the last set interval in order to make a new one.
         clearInterval(intervalId);
 
+        // handle long cities names.
+        document.querySelector('.info .location .city').classList.remove('long');
+        document.querySelector('.info .date-time').classList.remove('city-long');
+        if (res.city.length > 15) {
+            document.querySelector('.info .location .city').classList.add('long');
+            document.querySelector('.info .date-time').classList.add('city-long');
+        }
+
         // set the city and country from the location inputed by the user.
-        document.querySelector('.info .location .city').innerHTML = getPrayersInputs.city;
-        document.querySelector('.info .location .country').innerHTML = `,${getPrayersInputs.country}`;
+        document.querySelector('.info .location .city').innerHTML = res.city;
+        document.querySelector('.info .location .country').innerHTML = `,${res.country}`;
 
         getPrayers(getPrayersInputs);
 
