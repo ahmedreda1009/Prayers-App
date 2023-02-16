@@ -90,8 +90,6 @@ async function getCountryName(city) {
 
         alert('Enter a valid city name.');
 
-        // return { city: 'Cairo', country: 'EG' };
-
         // remove loader
         document.querySelector('.lds-ring').classList.remove('active');
     }
@@ -129,7 +127,7 @@ async function getUserDateTime({ timezone }) {
 
         return { date: dateData.data, time: timeData.data };
     } catch (error) {
-        console.log(error.message);
+        console.log(new Error(error.message));
     }
 }
 
@@ -201,7 +199,7 @@ async function getPrayers({ city, country }) {
         // remove loader
         document.querySelector('.lds-ring').classList.remove('active');
     } catch (error) {
-        console.log(error.message);
+        console.log(new Error(error.message));
     }
 }
 
