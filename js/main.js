@@ -208,6 +208,9 @@ async function getPrayers({ city, country }) {
 // get next prayer and the remaining time untill it.
 function getNextPrayer({ time, date, prayers }) {
 
+    // reset seconds
+    remainingSeconds = 60;
+
     // rearrange the the date to put it inside new Date() object.
     date = `${date.slice(6)}-${date.slice(3, 5)}-${date.slice(0, 2)}`
 
