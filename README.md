@@ -1,2 +1,2 @@
 # Prayers-App
-Responsive prayers times web application.
+Responsive Islamic prayers' times web application.
