@@ -7,7 +7,7 @@ const userLocationApi = 'https://geolocation-db.com/json/';
 const monthArr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // current city name.
-let currentCity = 'Cairo';
+let currentCity = 'cairo';
 let currentCountry = 'EG';
 
 // globak set interval id.
@@ -56,7 +56,7 @@ async function getUserLocation() {
 
         // set the city and country from the location returned by the ip address.
         document.querySelector('.info .location .city').innerHTML = data.city || 'Cairo';
-        document.querySelector('.info .location .country').innerHTML = `,${data.country_code}` || ',EG';
+        document.querySelector('.info .location .country').innerHTML = `,${data.country_code || 'EG'}`;
 
         currentCity = data.city;
         currentCountry = data.country_code;
@@ -86,7 +86,7 @@ async function getCountryName(city) {
         return { city: data.name, country: data.sys.country };
 
     } catch (error) {
-        console.log(new Error(error.message));
+        console.log(new Error(error));
 
         alert('Enter a valid city name.');
 
