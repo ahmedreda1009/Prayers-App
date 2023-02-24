@@ -1,6 +1,6 @@
 // apis base urls.
-const userDateApi = 'http://api.aladhan.com/v1/currentDate?zone=';
-const userTimeApi = 'http://api.aladhan.com/v1/currentTime?zone=';
+// const userDateApi = 'http://api.aladhan.com/v1/currentDate?zone=';
+// const userTimeApi = 'http://api.aladhan.com/v1/currentTime?zone=';
 const userLocationApi = 'https://geolocation-db.com/json/';
 
 // months array.
@@ -99,33 +99,29 @@ async function getCountryName(city) {
 async function getUserDateTime({ timezone }) {
 
     try {
-        const timeResponse = await fetch(`${userTimeApi}${timezone}`);
+        const apiKey = '71c6c5e231a94c6c9fd559f30a4be110';
+        const timeResponse = await fetch(`https://api.ipgeolocation.io/timezone?apiKey=${apiKey}&tz=${timezone}`);
         const timeData = await timeResponse.json();
-        const dateResponse = await fetch(`${userDateApi}${timezone}`);
-        const dateData = await dateResponse.json();
 
         // slice the date and time responses to manipulate the way they are represented.
-        const hour = parseInt(timeData.data.slice(0, 2));
-        const minute = timeData.data.slice(3, 5);
-        const day = dateData.data.slice(0, 2);
-        const month = parseInt(dateData.data.slice(3, 5));
-        const year = dateData.data.slice(6);
+        const hour = timeData.time_12.slice(0, 2);
+        const minute = timeData.time_12.slice(3, 5);
+        const amOrPm = timeData.time_12.slice(8);
+        const day = timeData.date.slice(8);
+        const month = timeData.month;
+        const year = timeData.year;
 
         // set time based on the timezone.
-        if (hour >= 12) {
-            if (hour > 12) {
-                document.querySelector('.info .date-time .time').innerHTML = `${hour - 12 < 10 ? `0${hour - 12}` : hour - 12}:${minute} PM`;
-            } else {
-                document.querySelector('.info .date-time .time').innerHTML = `${hour}:${minute} PM`;
-            }
-        } else {
-            document.querySelector('.info .date-time .time').innerHTML = `${hour < 10 ? `0${hour}` : hour}:${minute} AM`;
-        }
+        document.querySelector('.info .date-time .time').innerHTML = `${hour} : ${minute} ${amOrPm}`;
 
         // set date based on the timezone.
         document.querySelector('.info .date-time .date').innerHTML = ` ${day} ${monthArr[month - 1]} ${year}`;
 
-        return { date: dateData.data, time: timeData.data };
+        return {
+            date: {
+                day, year, month: timeData.date.slice(5, 7)
+            }, time: `${timeData.time_24.slice(0, 2)}:${timeData.time_24.slice(3, 5)}`
+        };
     } catch (error) {
         console.log(new Error(error.message));
     }
@@ -210,7 +206,7 @@ function getNextPrayer({ time, date, prayers }) {
     remainingSeconds = 60;
 
     // rearrange the the date to put it inside new Date() object.
-    date = `${date.slice(6)}-${date.slice(3, 5)}-${date.slice(0, 2)}`
+    date = `${date.year}-${date.month}-${date.day}`
 
     // get the timings of the prayers in chronological order.
     const prayersArray = [prayers.fajr, prayers.sunrise, prayers.dhuhr, prayers.asr, prayers.maghrib, prayers.isha];
@@ -244,13 +240,13 @@ function getNextPrayer({ time, date, prayers }) {
         // dedducting the time of the present moment from the time of the next prayer array to calc the remaining time till next prayer.
         const remainingTime = (new Date(`${date} ${prayersArray[nextPrayerIdx]}`)) - (new Date(`${date} ${time}`));
 
-        remaining = remainingTime;
+        remaining = remainingTime - 60000;
 
         // set interval on the remaining time until the next prayer time.
         intervalId = setInterval(() => {
 
             // if the remaining time is 0 then get the next prayer.
-            if (remaining == 0 && remainingSeconds == 0) getPrayersFromUserInput(currentCity);
+            if (remaining == 0 && remainingSeconds <= 0) getPrayersFromUserInput(currentCity);
 
             // get the remaining houres and minites till the next prayer.
             let hours = Math.floor(remaining / 1000 / 60 / 60);
@@ -281,7 +277,7 @@ function getNextPrayer({ time, date, prayers }) {
         // add one day to the fajr time to calculate the remaining time between now and the fajr of the next day.
         const remainingTime = (new Date(`${`${date.slice(0, 4)}-${date.slice(5, 7)}-${newDay}`} ${prayersArray[0]}`)) - (new Date(`${date} ${time}`));
 
-        remaining = remainingTime;
+        remaining = remainingTime - 60000;
 
         // set interval on the remaining time until the next fajr time.
         intervalId = setInterval(() => {
