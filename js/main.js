@@ -47,7 +47,15 @@ document.querySelector('.search i').addEventListener('click', () => {
 
 // when the user clicks the refresh btn.
 document.querySelector('.next-prayer-time i').addEventListener('click', () => {
+    // rotate class from refresh btn.
+    document.querySelector('.next-prayer-time i').classList.add('rotate');
+
     getPrayersFromUserInput(currentCity);
+
+    // remove rotate class from refresh btn.
+    setTimeout(() => {
+        document.querySelector('.next-prayer-time i').classList.remove('rotate');
+    }, 500);
 });
 
 // get user location via his ip address.
@@ -250,7 +258,7 @@ function getNextPrayer({ time, date, prayers }) {
         intervalId = setInterval(() => {
 
             // if the remaining time is 0 then get the next prayer.
-            if (remaining == 0 && remainingSeconds <= 0) getPrayersFromUserInput(currentCity);
+            if (remaining == 0 && remainingSeconds == 0) getPrayersFromUserInput(currentCity);
 
             // get the remaining houres and minites till the next prayer.
             let hours = Math.floor(remaining / 1000 / 60 / 60);
