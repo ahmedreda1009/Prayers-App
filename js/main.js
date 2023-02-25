@@ -7,7 +7,7 @@ const userLocationApi = 'https://geolocation-db.com/json/';
 const monthArr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // current city name.
-let currentCity = 'cairo';
+let currentCity = 'Cairo';
 let currentCountry = 'EG';
 
 // globak set interval id.
@@ -45,6 +45,11 @@ document.querySelector('.search i').addEventListener('click', () => {
     getPrayersFromUserInput(userInput.value);
 });
 
+// when the user clicks the refresh btn.
+document.querySelector('.next-prayer-time i').addEventListener('click', () => {
+    getPrayersFromUserInput(currentCity);
+});
+
 // get user location via his ip address.
 async function getUserLocation() {
     // run loader
@@ -58,8 +63,7 @@ async function getUserLocation() {
         document.querySelector('.info .location .city').innerHTML = data.city || 'Cairo';
         document.querySelector('.info .location .country').innerHTML = `,${data.country_code || 'EG'}`;
 
-        currentCity = data.city;
-        currentCountry = data.country_code;
+        currentCity = data.city || 'Cairo';
 
         return data;
 
@@ -76,12 +80,12 @@ async function getCountryName(city) {
     document.querySelector('.lds-ring').classList.add('active');
 
     try {
-        const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city.trim()}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
+        const countryNameApi = `https://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=20f7632ffc2c022654e4093c6947b4f4`;
         const response = await fetch(countryNameApi);
         const data = await response.json();
 
-        currentCity = data.name;
-        currentCountry = data.sys.country;
+        currentCity = data.name || 'Cairo';
+        currentCountry = data.sys.country || 'Egypt';
 
         return { city: data.name, country: data.sys.country };
 
@@ -309,7 +313,7 @@ function getNextPrayer({ time, date, prayers }) {
 async function getPrayersFromUserInput(input) {
     try {
         // prevent the user from making http requests for empty string.
-        if (input == '') return;
+        if (input === '') return;
 
         const res = await getCountryName(input);
 
